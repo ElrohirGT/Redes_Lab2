@@ -26,6 +26,7 @@
         packages = [
           pkgs.zig
           pkgs.go
+          pkgs.odin
 
           # Python
           pkgs.black
