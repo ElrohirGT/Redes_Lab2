@@ -6,10 +6,10 @@ import "core:os"
 import "core:strconv"
 
 main :: proc() {
-	if len(os.args) != 4 {
+	if len(os.args) < 4 {
 		fmt.printf("ERROR: Invalid arguments supplied!\n")
 		fmt.printf(`USAGE:
-	./hamming_decoding 11 7 1001101
+	./hamming_decoding 11 7 1001101 1001101 ...
 `)
 		os.exit(1)
 	}
@@ -38,14 +38,20 @@ main :: proc() {
 		os.exit(1)
 	}
 
+	for i := 3; i < len(os.args); i+=1 {
 	encoded_input: uint
-	encoded_input, ok = strconv.parse_uint(os.args[3], 2)
+	encoded_input, ok = strconv.parse_uint(os.args[i], 2)
 	if !ok {
 		fmt.printf("ERROR: Encoded input must be a number!")
 		os.exit(1)
 	}
 
-	fmt.fprintf(os.stderr, "Decoding message: %b\nUsing: n=%d,m=%d\n", encoded_input, input_length, data_length)
+	decode_input(input_length, data_length, encoded_input)
+	}
+}
+
+decode_input :: proc (input_length, data_length, encoded_input: uint) {
+fmt.fprintf(os.stderr, "Decoding message: %b\nUsing: n=%d,m=%d\n", encoded_input, input_length, data_length)
 
 	decoded_output, err_position, redundant_bits_mask := hamming_decode(input_length, data_length, encoded_input)
 	if err_position != 0 {
