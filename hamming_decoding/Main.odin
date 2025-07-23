@@ -39,14 +39,16 @@ main :: proc() {
 	}
 
 	encoded_input := os.args[3]
-	fmt.fprintf(os.stderr, "Decodificaré la siguiente cadena: %s\nUsando Hamming: n=%d,m=%d", encoded_input, input_length, data_length)
+	fmt.fprintf(os.stderr, "Decoding message: %s\nUsing: n=%d,m=%d\n", encoded_input, input_length, data_length)
 
 	decoded_output, err_position := hamming_decode(input_length, data_length, encoded_input)
 	if err_position != 0 {
-		fmt.fprintf(os.stderr, "Encontré un error en la posición: %d\nFixing...", err_position)
-		inverted_output := ~decoded_output
+		fmt.fprintf(os.stderr, "Found error on bit: %d\nFixing...", err_position)
+		mask := 1 << (err_position -1)
+		fixed_output := decoded_output ^ mask
+		fmt.fprintf("Decoded: %b\nFixed: %b\n", decoded_output, fixed_output)
 	} else {
-
+		fmt.fprintf("Decoded: %b", decoded_output)
 	}
 }
 
