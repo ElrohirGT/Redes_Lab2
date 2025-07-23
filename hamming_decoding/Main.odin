@@ -108,23 +108,27 @@ get_bytes_with :: proc(bit_to_flip_count: uint, encoded_input: uint, length: uin
 
 	ones_count: uint = 0
 	first_bit_value: uint = 0
-	for i: uint = 0; i < length; i += 1 {
+	for i: uint = 0; i <= length; i += 1 {
 		bit_count += 1;
+		// fmt.fprintf(os.stderr, "Analizing bit: %2d, IsOne: %t\n", i+1,is_one)
+
+		if is_one {
+			pos_mask: uint = 1<<(i-1)
+			// fmt.fprintf(os.stderr, "Bit is 1! PosMask: %b, Input: %b, PosMask & Input: %b\n", pos_mask, encoded_input, pos_mask & encoded_input)
+			if pos_mask & encoded_input > 0 {
+				ones_count += 1
+
+				if flip_count == 1 && bit_count == 1 {
+					// fmt.fprintf(os.stderr, "The parity bit from: %b with %d bits to flip is 1. Bitmask: %b\n", encoded_input, bit_to_flip_count, pos_mask)
+					first_bit_value = 1
+				}
+			}
+		}
 
 		if bit_count >= bit_to_flip_count {
 			flip_count += 1
 			is_one = !is_one
 			bit_count = 0
-		}
-
-		if is_one {
-			pos_mask: uint = 1<<i
-			if pos_mask & encoded_input > 0 {
-				if flip_count == 1 {
-					first_bit_value = 1
-				}
-				ones_count += 1
-			}
 		}
 	}
 
