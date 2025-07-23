@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 class Emisor:
     def __init__(self, message: str):
         self.message = message.split(" ")
@@ -6,9 +9,9 @@ class Emisor:
 
         for word in self.message:
             self.current_r = 0
-            self.current_message = word[::-1] # 7 -> 1 to 1 -> 7 
+            self.current_message = word[::-1]  # 7 -> 1 to 1 -> 7
             hamming = self.hamming()
-            hamming = ''.join(map(str, hamming[::-1])) # 1 -> 7 to 7 -> 1
+            hamming = "".join(map(str, hamming[::-1]))  # 1 -> 7 to 7 -> 1
             self.encoded_message += hamming + " "
 
     def hamming(self):
@@ -20,9 +23,9 @@ class Emisor:
     def bits_redundancia(self):
         m = len(self.current_message)
         self.current_r = 0
-        while (m + self.current_r + 1) > (2 ** self.current_r):
+        while (m + self.current_r + 1) > (2**self.current_r):
             self.current_r += 1
-    
+
     def colocar_bits_paridad(self):
         j = 0
         k = 0
@@ -31,7 +34,7 @@ class Emisor:
         result = []
 
         for i in range(1, n + 1):
-            if i == 2 ** j:
+            if i == 2**j:
                 result.append(0)
                 j += 1
             else:
@@ -42,14 +45,14 @@ class Emisor:
     def calcular_valores_paridad(self, hamming_bits):
         n = len(hamming_bits)
         for i in range(self.current_r):
-            idx = 2 ** i
+            idx = 2**i
             val = 0
             for j in range(1, n + 1):
                 if j & idx and j != idx:
                     val ^= hamming_bits[j - 1]
             hamming_bits[idx - 1] = val
         return hamming_bits
-        
+
 
 bits = input("Introduzca su trama: ")
 emisor = Emisor(bits)
