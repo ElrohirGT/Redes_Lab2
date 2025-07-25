@@ -1,4 +1,4 @@
-class Emisor:
+class Hamming:
     def __init__(self, message: str):
         self.message = message.split(" ")
         self.current_message = ""
@@ -51,6 +51,5 @@ class Emisor:
         return hamming_bits
         
 
-bits = input("Introduzca su trama: ")
-emisor = Emisor(bits)
-print(emisor.encoded_message)
+
+
