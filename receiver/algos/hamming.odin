@@ -1,5 +1,5 @@
 #+vet !using-stmt !using-param
-package main
+package algos
 
 import "core:fmt"
 import "core:os"
