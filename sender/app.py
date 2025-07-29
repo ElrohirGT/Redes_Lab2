@@ -3,6 +3,7 @@
 # 11: CRC
 from presentation import TextFrameEncoder
 from algos.hamming import Hamming
+from algos.crc import CRC
 from link import link
 
 
@@ -22,14 +23,13 @@ while True:
         break
     elif (opc == "2"):
         algorithm = "11"
-        encoder_class = Hamming  #cambiar
+        encoder_class = CRC  #cambiar
         break
 
 for i in range(len(message_b)):
     message_b[i] += algorithm
 
-print(f"\nMensaje codificado con algoritmo: {" ".join(message_b)}")
 
 encoded_message = link(encoder_class, " ".join(message_b))
 
-print(f"\nTu mensaje codificado con el algoritmo: {encoded_message}")
+print(f"\nTu mensaje codificado con el algoritmo:\n{encoded_message}")
