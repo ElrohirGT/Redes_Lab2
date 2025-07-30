@@ -2,6 +2,8 @@
 # 00: Hamming
 # 11: CRC
 import socket
+import numpy as np
+
 HOST = "127.0.0.1"  
 PORT = 65432 
 
@@ -38,15 +40,27 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             encoder_class = CRC
             break
 
-    for i in range(len(message_b)):
-        message_b[i] += algorithm
+    encoded_message: str = link(encoder_class, " ".join(message_b))
+
+    encoded_final = encoded_message.strip(" ").split(" ")
+
+    for i in range(len(encoded_final)):
+        encoded_final[i] = algorithm + encoded_final[i].strip(" ")
 
 
-    encoded_message = link(encoder_class, " ".join(message_b))
+    messageToSend = " ".join(encoded_final)
 
-    print(f"\nTu mensaje codificado con el algoritmo:\n{encoded_message}")
+    print(f"\nTu mensaje codificado con el algoritmo:\n{messageToSend}")
 
-    s.sendall(encoded_message.encode('utf-8'))
+    num = int(messageToSend, 2)    
+
+    numero_int64 = np.int64(num)
+
+    bytes_array = np.array([(numero_int64 >> (8 * i)) & 0xFF for i in range(8)], dtype=np.int8)
+
+    data = bytearray(bytes_array)
+
+    s.sendall(data)
 
     print("Mensaje enviado")
 
