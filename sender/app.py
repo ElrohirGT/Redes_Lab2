@@ -11,6 +11,7 @@ from presentation import TextFrameEncoder
 from algos.hamming import Hamming
 from algos.crc import CRC
 from link import link
+from noise import inject_noise
 
 
 encoder = TextFrameEncoder()
@@ -49,6 +50,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
 
     messageToSend = " ".join(encoded_final)
+
+    # messageToSend = inject_noise(messageToSend, 0.1) # Descomentar para el RUIDOOOOO
 
     print(f"\nTu mensaje codificado con el algoritmo:\n{messageToSend}")
 
