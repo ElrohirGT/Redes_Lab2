@@ -10,6 +10,7 @@ package main
 
 import "core:fmt"
 import "core:os"
+import "algos"
 
 main :: proc() {
 	port := 65432
@@ -21,7 +22,29 @@ main :: proc() {
 	defer close_socket(socket)
 	fmt.printf("Listening on: %s:%d\n", "127.0.0.1", port)
 
+	// for {
+	// 	cli, _, err_accept := net.accept
+	// }
+
 	msg := [42]byte{}
 	received_bytes, recv_err := recv(socket, msg[:])
-	fmt.printf("Received (%d) bytes\n", received_bytes)
+	if recv_err != nil {
+		fmt.fprintf(os.stderr, "Couldn't receive msg! Because: %s\n", recv_err)
+		return
+	}
+	fmt.printf("Received (%d) bytes: %s\n", received_bytes, msg)
+
+	fmt.printf("Extracting msg encoding method...\n")
+	method, extract_type_err := extract_type(msg[:])
+	if extract_type_err != nil {
+		fmt.fprintf(os.stderr, "Couldn't extract msg type! Error: %s\n", extract_type_err)
+		return
+	}
+
+	fmt.printf("Encoding method extracted! Using: %s\nDecoding...\n", method)
+	// if method == LabEncodingType.HAMMING {
+	// 	algos.hamming_decode(12, 8, msg)
+	// } else {
+	//
+	// }
 }
