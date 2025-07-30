@@ -1,7 +1,27 @@
-#!/usr/bin/env python3
-# 00: Hamming
-# 11: CRC
-# Hamming(14,10)
+package main
 
-# H = 10 (ASCII) 00 (Hamming)
-# Hamming(1000) = 1001001010
+// #!/usr/bin/env python3
+// # 00: Hamming
+// # 11: CRC
+// # Hamming(14,10)
+//
+// # H = 10 (ASCII) 00 (Hamming)
+// # Hamming(1000) = 1001001010
+
+import "core:fmt"
+import "core:os"
+
+main :: proc() {
+	port := 65432
+	socket, listen_err := open_socket(port)
+	if listen_err != nil {
+		fmt.fprintf(os.stderr, "Couldn't open the socket on %s:%d! Because: %s\n", "127.0.0.1", port, listen_err)
+		return
+	}
+	defer close_socket(socket)
+	fmt.printf("Listening on: %s:%d\n", "127.0.0.1", port)
+
+	msg := [42]byte{}
+	received_bytes, recv_err := recv(socket, msg[:])
+	fmt.printf("Received (%d) bytes\n", received_bytes)
+}
