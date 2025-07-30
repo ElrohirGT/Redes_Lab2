@@ -11,6 +11,7 @@ from presentation import TextFrameEncoder
 from algos.hamming import Hamming
 from algos.crc import CRC
 from link import link
+from noise import inject_noise
 
 
 encoder = TextFrameEncoder()
@@ -50,15 +51,23 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     messageToSend = " ".join(encoded_final)
 
+    # messageToSend = inject_noise(messageToSend, 0.1) # Descomentar para el RUIDOOOOO
+
     print(f"\nTu mensaje codificado con el algoritmo:\n{messageToSend}")
 
     num = int(messageToSend, 2)    
 
-    numero_int64 = np.int64(num)
+    # numero_int64 = np.int64(num)
 
-    bytes_array = np.array([(numero_int64 >> (8 * i)) & 0xFF for i in range(8)], dtype=np.int8)
+    # if num >= 2**64:
+    #     raise ValueError("El mensaje es demasiado grande para enviarse en 8 bytes (64 bits).")
 
-    data = bytearray(bytes_array)
+    # bytes_array = np.array([(numero_int64 >> (8 * i)) & 0xFF for i in range(8)], dtype=np.int8)
+
+    # data = bytearray(bytes_array)
+    data = num.to_bytes(8, byteorder='big')
+
+    print(data)
 
     s.sendall(data)
 
