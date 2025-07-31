@@ -48,9 +48,9 @@ handle_client :: proc(socket: net.TCP_Socket) {
 
 	for v in results {
 		if v.was_ok {
-			fmt.printf("  %c\n", v.final)
+			fmt.printf("  Letra de la trama: %c\n", v.final)
 		} else {
-			fmt.printf("* %c", v.final)
+			fmt.printf("* Letra de la trama %c", v.final)
 		}
 	}
 	}

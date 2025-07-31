@@ -23,7 +23,9 @@ hamming_decode :: proc(input_length: uint, data_length: uint, encoded_input: u64
 		}
 	}
 
-	fmt.fprintf(os.stderr, "The redundant bit mask is: %b\n", redundant_bits_mask)
+	// fmt.fprintf(os.stderr, "The redundant bit mask is: %b\n", redundant_bits_mask)
+
+	// fmt.printf("Encoded input: %012b\n", encoded_input)
 
 	output = extract_content(input_length, redundant_bits_mask, encoded_input)
 	return output, err_position, redundant_bits_mask

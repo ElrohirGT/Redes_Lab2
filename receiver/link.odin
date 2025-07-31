@@ -14,17 +14,39 @@ LabEncodingType :: enum {
 TypeExtractionError :: enum {
 	InvalidEncoding
 }
+// Esta solucion es temporal no logre como obtener los primeros dos bits
+get_total_bits :: proc(value: u64) -> uint {
+    if value == 0 { return 1 }
+    count: uint = 0
+    temp := value
+    for temp > 0 {
+        temp >>= 1
+        count += 1
+    }
+    return count
+}
 extract_type :: proc(msg: u64) -> (enc_type: LabEncodingType, err: TypeExtractionError) {
-	first_bit := msg >> 1
-	second_bit := msg >> 2
+	// Cuando se encuentre una mejor forma quitar esto y arreglarlo
+	// Como dije en la funcion de arriba no se como acceder a los primeros dos bits
+	// Tomar en cuenta 1 y 2, son los ultimos de hasta la derecha entonces como en python le damos vuelta esoso son los que quitamos
+	total_bits := get_total_bits(msg)
+    fmt.printf("DEBUG -> msg:%b | total_bits:%d\n", msg, total_bits)
 
-	if first_bit == 1 && second_bit == 1{
-		return LabEncodingType.CRC, nil
-	}
+    if total_bits > 20 { // umbral: si es largo, asumimos CRC
+        return LabEncodingType.CRC, nil
+    } else {
+        return LabEncodingType.HAMMING, nil
+    }
+	// first_bit := msg >> 1
+	// second_bit := msg >> 2
 
-	if first_bit == 0 && second_bit == 0 {
-		return LabEncodingType.HAMMING, nil
-	}
+	// if first_bit == 1 && second_bit == 1{
+	// 	return LabEncodingType.CRC, nil
+	// }
+
+	// if first_bit == 0 && second_bit == 0 {
+	// 	return LabEncodingType.HAMMING, nil
+	// }
 
 	return LabEncodingType.HAMMING, TypeExtractionError.InvalidEncoding
 }
@@ -101,24 +123,58 @@ VerifyResult :: struct {
 	method: LabEncodingType,
 	was_ok: bool,
 	decoded: u64,
-	final: u32
+	final: u64
 }
+
+reverse_bits :: proc(value: u64, length: uint) -> u64 {
+    result: u64 = 0
+    for i: uint = 0; i < length; i += 1 {
+        if ((value >> i) & 1) != 0 {
+            result |= 1 << ((length - 1) - i)
+        }
+    }
+    return result
+}
+
+flip_all_tramas :: proc(trans_msg: ^[dynamic]u64, bit_len: uint) {
+	// Esto sirve para hacer flip a trans_mg pero al final lo quite por intentar hacer otra cosa
+    for i in 0..<len(trans_msg^) {
+        original := trans_msg^[i]
+
+        masked := original & ((1 << bit_len) - 1)
+
+        flipped := reverse_bits(masked, bit_len)
+
+        fmt.printf("Trama %d:\n", i)
+        fmt.printf("  Original : %0*b\n", bit_len, original)
+        fmt.printf("  Invertido: %0*b\n\n", bit_len, flipped)
+
+        trans_msg^[i] = flipped
+    }
+}
+
 verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: VerifyAndCorrectError) {
 	trans_msg, transformation_err := transform_bytes_into_u64(msg, true)
 	if transformation_err != nil {
 		return final, transformation_err
 	}
 
+
 	final = make([dynamic]VerifyResult, 0, len(msg)/8)
 	for &trama in trans_msg {
+		// fmt.printf("Trama antes de extract %014b\n", trama)
 		method, extraction_err := extract_type(trama)
+		// fmt.printf("Método detectado: %v\n", method)
 		if extraction_err != nil {
 			return final, extraction_err
 		}
 
 		trama_without_encoding_type := trama >> 2
+		// fmt.printf("Trama without encoding_type %012b\n", trama_without_encoding_type)
+		
 		if method == LabEncodingType.HAMMING {
-			out, err_position, redundant_mask := algos.hamming_decode(12, 8, trama_without_encoding_type)
+			reverse_trama := reverse_bits(trama_without_encoding_type, 12)
+			out, err_position, redundant_mask := algos.hamming_decode(12, 8, reverse_trama)
 			if err_position == 0 {
 				fmt.fprintf(os.stderr, "No error found decoding!\n")
 				append(&final, VerifyResult {
@@ -141,14 +197,18 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: V
 				})
 			}
 		} else {
-			is_valid := algos.crc_decode(trama_without_encoding_type)
+		// fmt.printf("Trama without encoding_type %012b\n", trama_without_encoding_type)
+
+			reverse_trama := reverse_bits(trama_without_encoding_type, 40)
+			// fmt.printf("Trama %040b is using CRC-32\n", trama_without_encoding_type)
+			is_valid := algos.crc_decode(reverse_trama)
 			if is_valid {
-				fmt.fprintf(os.stderr, "%b is valid!\n", trama_without_encoding_type)
+				fmt.fprintf(os.stderr, "%b is valid!\n", reverse_trama)
 				append(&final, VerifyResult {
-					original = trama_without_encoding_type,
+					original = reverse_trama,
 					method = method,
 					was_ok = true,
-					decoded = trama_without_encoding_type
+					decoded = reverse_trama
 				})
 			} else {
 				fmt.fprintf(os.stderr, "%b is INVALID!\n", trama_without_encoding_type)
