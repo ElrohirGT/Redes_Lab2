@@ -1,12 +1,11 @@
 package main
 
-extract_from_results :: proc (results: []VerifyResult) -> string {
+extract_from_results :: proc (results: []VerifyResult) -> []VerifyResult {
 	// Extraer todas las tramas y convertirlas a una string
 	// Mira como uso el builder para la función de `reverse_string`
 
 	// TODO: Implement
-
-	return ""
+	return results
 }
 
 

@@ -100,7 +100,8 @@ VerifyResult :: struct {
 	original: u64,
 	method: LabEncodingType,
 	was_ok: bool,
-	final: u64
+	decoded: u64,
+	final: u32
 }
 verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: VerifyAndCorrectError) {
 	trans_msg, transformation_err := transform_bytes_into_u64(msg, true)
