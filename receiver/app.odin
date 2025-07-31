@@ -14,9 +14,11 @@ import "algos"
 import "core:net"
 import "core:thread"
 
+MAX_BYTES :: 8
+
 handle_client :: proc(socket: net.TCP_Socket) {
 	defer close_socket(socket)
-	buffer := [42]byte{}
+	buffer := [MAX_BYTES]byte{}
 
 	for {
 	received_bytes, recv_err := recv(socket, buffer[:])
@@ -25,6 +27,7 @@ handle_client :: proc(socket: net.TCP_Socket) {
 		return
 	}
 	if received_bytes == 0 {
+		fmt.fprintf(os.stderr, "No bytes received!\n")
 		continue
 	}
 	fmt.printf("Received (%d) bytes: %s\n", received_bytes, buffer)
@@ -36,11 +39,10 @@ handle_client :: proc(socket: net.TCP_Socket) {
 		return
 	}
 
-	fmt.printf("Encoding method extracted! Using: %s\nDecoding...\n", method)
+	// fmt.printf("Encoding method extracted! Using: %s\nDecoding...\n", method)
 	// if method == LabEncodingType.HAMMING {
 	// 	algos.hamming_decode(12, 8, msg)
 	// } else {
-	//
 	// }
 	}
 }

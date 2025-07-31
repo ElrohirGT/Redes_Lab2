@@ -5,7 +5,7 @@ import "core:fmt"
 import "core:os"
 import "core:strconv"
 
-hamming_decode :: proc(input_length: uint, data_length: uint, encoded_input: uint) -> (output: uint, err_position: uint, redundant_bits_mask: uint) {
+hamming_decode :: proc(input_length: uint, data_length: uint, encoded_input: u64) -> (output: u64, err_position: u64, redundant_bits_mask: u64) {
 	r := input_length - data_length
 	for i: uint = 1; i <= r; i+=1 {
 		pos_mask:uint = 1<<(i-1)
@@ -29,6 +29,7 @@ hamming_decode :: proc(input_length: uint, data_length: uint, encoded_input: uin
 	return output, err_position, redundant_bits_mask
 }
 
+@(private)
 extract_content :: proc (input_length: uint, redundant_bits_mask: uint, encoded_input: uint) -> uint {
 	output: uint = 0
 	added_bit_pos_tracker: uint = 0
@@ -48,6 +49,7 @@ extract_content :: proc (input_length: uint, redundant_bits_mask: uint, encoded_
 	return output
 }
 
+@(private)
 get_bytes_with :: proc(bit_to_flip_count: uint, encoded_input: uint, length: uint) -> (uint, uint) {
 	flip_count := 0
 	bit_count: uint = 0

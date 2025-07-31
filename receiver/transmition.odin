@@ -21,7 +21,7 @@ recv :: proc(socket: net.TCP_Socket, buf: []u8)-> (bytes_read: int, err: net.TCP
 	err = net.TCP_Recv_Error.Not_Connected
 
 	for err == net.TCP_Recv_Error.Not_Connected {
-		fmt.fprintf(os.stderr, "Nobody connected, retrying...\n")
+		fmt.fprintf(os.stderr, "Not connected! Retrying...\n")
 		bytes_read, err = net.recv_tcp(socket, buf)
 		time.sleep(2*time.Second)
 	}
