@@ -55,7 +55,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     print(f"\nTu mensaje codificado con el algoritmo:\n{messageToSend}")
 
-    num = int(messageToSend, 2)
+    num = int(messageToSend[::-1], 2)
+
+    # num = np.int64(num)
+    #
+    # data = num.astype('>i8').tobytes()
 
     # numero_int64 = np.int64(num)
 
@@ -67,7 +71,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # data = bytearray(bytes_array)
     data = num.to_bytes(8, byteorder="big", signed=False)
 
-    print(data)
+    print(list(data))
 
     s.sendall(data)
 
