@@ -5,6 +5,7 @@ import "core:os"
 import "core:fmt"
 import "core:encoding/endian"
 import "core:strconv"
+import "core:strings"
 
 LabEncodingType :: enum {
 	HAMMING,
@@ -53,7 +54,7 @@ transform_bytes_into_u64 :: proc(msg: []byte, big_ed: bool) -> (transformed_msg:
 			}
 		} else {
 			ok := true
-			trama, ok = endian.get_u64(bytes, endian.Byte_Order.Big)
+			trama, ok = endian.get_u64(bytes, endian.Byte_Order.Little)
 			if !ok {
 				return transformed_msg, TransformBytesIntoU64Error.FailedToConvertToLittleEndian
 			}
@@ -61,17 +62,34 @@ transform_bytes_into_u64 :: proc(msg: []byte, big_ed: bool) -> (transformed_msg:
 
 		fmt.fprintf(os.stderr, "Transformed %v into: %b (digit: %d)\n", bytes, trama, trama)
 
-		buff := [8]byte{}
-		before := "01001100100000"
-		n, ok := strconv.parse_uint(before, 2)
-		// endian.put_u32(buff[:], endian.Byte_Order.Big, n)
-		fmt.fprintf(os.stderr, "Before: %s\nAfter : %b\n", before, n)
+		// buff := [8]byte{}
+		// before := "01001100100000"
+		// reverse := reverse_string(before)
+		// n, ok := strconv.parse_uint(reverse, 2)
+		// // endian.put_u32(buff[:], endian.Byte_Order.Big, n)
+		// fmt.fprintf(os.stderr, "Before: %s\nRevers: %s\nAfter : %b\n", before, reverse, n)
 		 
 		append(&transformed_msg, trama)
 		i+= 7
 	}
 
 	return transformed_msg, nil
+}
+
+reverse_string :: proc(s: string) -> string {
+    // Convert the string to a mutable byte slice.
+    // Strings in Odin are immutable, so we need to work with bytes.
+		bytes := make([dynamic]u8, len(s))
+		b := strings.builder_from_bytes(bytes[:])
+
+    // Initialize two pointers for the start and end of the slice.
+		for i := len(s)-1; i >= 0; i-=1 {
+			strings.write_byte(&b, s[i])
+		}
+
+    // Convert the reversed byte slice back to a string.
+		return strings.to_string(b)
+    // return string(bytes)
 }
 
 VerifyAndCorrectError :: union #shared_nil {
