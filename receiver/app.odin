@@ -44,7 +44,7 @@ handle_client :: proc(socket: net.TCP_Socket) {
 
 	// TODO: GERARX VAS VOS AQUI
 	fmt.printf("Decoding message...\n")
-	extract_from_results(results[:])
+	results = extract_from_results(results)
 
 	for v in results {
 		if v.was_ok {

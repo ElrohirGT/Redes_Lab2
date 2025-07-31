@@ -1,6 +1,6 @@
 package main
 
-extract_from_results :: proc (results: []VerifyResult) -> []VerifyResult {
+extract_from_results :: proc (results: [dynamic]VerifyResult) -> [dynamic]VerifyResult {
 	// Extraer todas las tramas y convertirlas a una string
 	// Mira como uso el builder para la función de `reverse_string`
 
