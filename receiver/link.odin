@@ -62,9 +62,10 @@ transform_bytes_into_u64 :: proc(msg: []byte, big_ed: bool) -> (transformed_msg:
 		fmt.fprintf(os.stderr, "Transformed %v into: %b (digit: %d)\n", bytes, trama, trama)
 
 		buff := [8]byte{}
-		n, ok := strconv.parse_u64_of_base("01001100100000", 2)
-		endian.put_u64(buff[:], endian.Byte_Order.Big, n)
-		fmt.fprintf(os.stderr, "Transformed %b into %v\n", n, buff)
+		before := "01001100100000"
+		n, ok := strconv.parse_uint(before, 2)
+		// endian.put_u32(buff[:], endian.Byte_Order.Big, n)
+		fmt.fprintf(os.stderr, "Before: %s\nAfter : %b\n", before, n)
 		 
 		append(&transformed_msg, trama)
 		i+= 7
