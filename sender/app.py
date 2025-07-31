@@ -49,31 +49,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     for i in range(len(encoded_final)):
         encoded_final[i] = encoded_final[i].strip(" ") + algorithm
 
-    messageToSend = " ".join(encoded_final)
 
-    # messageToSend = inject_noise(messageToSend, 0.1) # Descomentar para el RUIDOOOOO
+    # RUIDOOOO
+    # for i in range(len(encoded_final)):
+    #     encoded_final[i] = inject_noise(encoded_final[i].strip(" "), 0.05)
 
-    print(f"\nTu mensaje codificado con el algoritmo:\n{messageToSend}")
+    print(f"\nTu mensaje codificado con el algoritmo:\n{" ".join(encoded_final)}")
 
-    num = int(messageToSend[::-1], 2)
+    messageToSend = encoded_final
 
-    # num = np.int64(num)
-    #
-    # data = num.astype('>i8').tobytes()
+    payload = b""
+    for message in encoded_final:
+        num = int(message[::-1], 2)
+        payload += num.to_bytes(8, byteorder="big", signed=False)
 
-    # numero_int64 = np.int64(num)
-
-    # if num >= 2**64:
-    #     raise ValueError("El mensaje es demasiado grande para enviarse en 8 bytes (64 bits).")
-
-    # bytes_array = np.array([(numero_int64 >> (8 * i)) & 0xFF for i in range(8)], dtype=np.int8)
-
-    # data = bytearray(bytes_array)
-    data = num.to_bytes(8, byteorder="big", signed=False)
-
-    print(list(data))
-
-    s.sendall(data)
+    s.sendall(payload)
 
     print("Mensaje enviado")
 
