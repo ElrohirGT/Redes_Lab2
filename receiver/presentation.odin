@@ -1,5 +1,18 @@
 package main
 
+extract_from_results :: proc (results: []VerifyResult) -> string {
+	// Extraer todas las tramas y convertirlas a una string
+	// Mira como uso el builder para la función de `reverse_string`
+
+	// TODO: Implement
+
+	return ""
+}
+
+
+
+// Esta la usé cuando hice hamming, maybe te sirva?
+@(private)
 extract_content :: proc (input_length: uint, redundant_bits_mask: uint, encoded_input: uint) -> uint {
 	output: uint = 0
 	added_bit_pos_tracker: uint = 0

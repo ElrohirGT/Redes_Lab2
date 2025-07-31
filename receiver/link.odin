@@ -96,13 +96,19 @@ VerifyAndCorrectError :: union #shared_nil {
 	TypeExtractionError,
 	TransformBytesIntoU64Error,
 }
-verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]u64, err: VerifyAndCorrectError) {
+VerifyResult :: struct {
+	original: u64,
+	method: LabEncodingType,
+	was_ok: bool,
+	final: u64
+}
+verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: VerifyAndCorrectError) {
 	trans_msg, transformation_err := transform_bytes_into_u64(msg, true)
 	if transformation_err != nil {
 		return final, transformation_err
 	}
 
-	final = make([dynamic]u64, 0, len(msg)/8)
+	final = make([dynamic]VerifyResult, 0, len(msg)/8)
 	for &trama in trans_msg {
 		method, extraction_err := extract_type(trama)
 		if extraction_err != nil {
@@ -114,16 +120,44 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]u64, err: VerifyAndC
 			out, err_position, redundant_mask := algos.hamming_decode(12, 8, trama_without_encoding_type)
 			if err_position == 0 {
 				fmt.fprintf(os.stderr, "No error found decoding!\n")
-				append(&final, out)
+				append(&final, VerifyResult {
+					original = trama_without_encoding_type,
+					method = method,
+					was_ok = true,
+					final = out
+				})
 			} else {
 				fmt.fprintf(os.stderr, "Found error on bit: %b (%d)\nFixing...\n", err_position, err_position)
 				mask: u64 = 1 << (err_position -1)
 				fixed_out := out ~ mask
 				fmt.fprintf(os.stderr, "Fixed! %b\n", fixed_out)
 
-				append(&final, fixed_out)
+				append(&final, VerifyResult {
+					original = trama_without_encoding_type,
+					method = method,
+					was_ok = false,
+					final = fixed_out
+				})
 			}
 		} else {
+			is_valid := algos.crc_decode(trama_without_encoding_type)
+			if is_valid {
+				fmt.fprintf(os.stderr, "%b is valid!\n", trama_without_encoding_type)
+				append(&final, VerifyResult {
+					original = trama_without_encoding_type,
+					method = method,
+					was_ok = true,
+					final = trama_without_encoding_type
+				})
+			} else {
+				fmt.fprintf(os.stderr, "%b is INVALID!\n", trama_without_encoding_type)
+				append(&final, VerifyResult {
+					original = trama_without_encoding_type,
+					method = method,
+					was_ok = false,
+					final = trama_without_encoding_type
+				})
+			}
 		}
 	}
 

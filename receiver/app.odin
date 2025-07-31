@@ -36,24 +36,17 @@ handle_client :: proc(socket: net.TCP_Socket) {
 	fmt.printf("Received (%d) bytes: %v\n", received_bytes, buffer)
 
 	fmt.printf("Verifying and correcting...\n")
-	final, err_correcting := verify_and_correct(buffer[:])
+	results, err_correcting := verify_and_correct(buffer[:])
 	if err_correcting != nil {
 		fmt.fprintf(os.stderr, "Failed to verify/correct the message! CLIENT DOESN'T FOLLOW PROTOCOL: %s\n", err_correcting)
 		return
 	}
 
-	// fmt.printf("Extracting msg encoding method...\n")
-	// method, extract_type_err := extract_type(buffer[:])
-	// if extract_type_err != nil {
-	// 	fmt.fprintf(os.stderr, "Couldn't extract msg type! Error: %s\n", extract_type_err)
-	// 	return
-	// }
+	// TODO: GERARX VAS VOS AQUI
+	fmt.printf("Decoding message...\n")
+	decoded_message := extract_from_results(results[:])
 
-	// fmt.printf("Encoding method extracted! Using: %s\nDecoding...\n", method)
-	// if method == LabEncodingType.HAMMING {
-	// 	algos.hamming_decode(12, 8, msg)
-	// } else {
-	// }
+	fmt.printf("The decoded message is: %s\n", decoded_message)
 	}
 }
 
