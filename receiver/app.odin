@@ -13,6 +13,7 @@ import "core:os"
 import "algos"
 import "core:net"
 import "core:thread"
+import "core:time"
 
 MAX_BYTES :: 8
 
@@ -20,19 +21,17 @@ handle_client :: proc(socket: net.TCP_Socket) {
 	defer close_socket(socket)
 	buffer := [MAX_BYTES]byte{}
 
+	results := [dynamic]VerifyResult{}
+	start := time.now()
 	for {
 	received_bytes, recv_err := recv(socket, buffer[:])
-	if recv_err == net.TCP_Recv_Error.Not_Connected {
-		fmt.fprintf(os.stderr, "Client disconnected! Terminating...\n")
-		return
-	}
 	if recv_err != nil {
 		fmt.fprintf(os.stderr, "Couldn't receive msg! Because: %s\n", recv_err)
 		return
 	}
 	if received_bytes == 0 {
-		fmt.fprintf(os.stderr, "*")
-		continue
+		fmt.fprintf(os.stderr, "Client disconnected! Terminating...\n")
+		break
 	}
 
 	fmt.fprintf(os.stderr, "\n")
@@ -40,10 +39,13 @@ handle_client :: proc(socket: net.TCP_Socket) {
 	fmt.printf("Received (%d) bytes: %v\n", received_bytes, buffer)
 
 	fmt.printf("Verifying and correcting...\n")
-	results, err_correcting := verify_and_correct(buffer[:])
+	rs, err_correcting := verify_and_correct(buffer[:])
 	if err_correcting != nil {
 		fmt.fprintf(os.stderr, "Failed to verify/correct the message! CLIENT DOESN'T FOLLOW PROTOCOL: %s\n", err_correcting)
 		return
+	}
+
+	append(&results, ..rs[:])
 	}
 
 	// TODO: GERARX VAS VOS AQUI
@@ -57,7 +59,8 @@ handle_client :: proc(socket: net.TCP_Socket) {
 			fmt.printf("* Letter: %c\n", v.final)
 		}
 	}
-	}
+	
+	fmt.printf("It took: %s\n", time.since(start))
 }
 
 main :: proc() {
