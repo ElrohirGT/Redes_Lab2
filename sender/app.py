@@ -46,7 +46,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     encoded_final = encoded_message.strip(" ").split(" ")
 
     for i in range(len(encoded_final)):
-        encoded_final[i] = algorithm + encoded_final[i].strip(" ")
+        encoded_final[i] =  encoded_final[i].strip(" ") + algorithm
 
 
     messageToSend = " ".join(encoded_final)
