@@ -22,6 +22,10 @@ handle_client :: proc(socket: net.TCP_Socket) {
 
 	for {
 	received_bytes, recv_err := recv(socket, buffer[:])
+	if recv_err == net.TCP_Recv_Error.Not_Connected {
+		fmt.fprintf(os.stderr, "Client disconnected! Terminating...\n")
+		return
+	}
 	if recv_err != nil {
 		fmt.fprintf(os.stderr, "Couldn't receive msg! Because: %s\n", recv_err)
 		return

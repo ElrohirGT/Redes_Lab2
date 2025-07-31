@@ -18,12 +18,7 @@ close_socket :: proc(socket: net.Any_Socket) {
 }
 
 recv :: proc(socket: net.TCP_Socket, buf: []u8)-> (bytes_read: int, err: net.Network_Error) {
-	err = net.TCP_Recv_Error.Not_Connected
-
-	for err == net.TCP_Recv_Error.Not_Connected {
-		bytes_read, err = net.recv_tcp(socket, buf)
-		time.sleep(2*time.Second)
-	}
-
+	bytes_read, err = net.recv_tcp(socket, buf)
+	time.sleep(2*time.Second)
 	return bytes_read,err
 }
