@@ -67,7 +67,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # data = bytearray(bytes_array)
     data = num.to_bytes(8, byteorder="big", signed=False)
 
-    print(data)
+    print(list(data))
 
     s.sendall(data)
 
