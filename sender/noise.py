@@ -13,5 +13,7 @@ def inject_noise(original: str, errPercent: float) -> str:
                 withNoise += "0"
             else:
                 withNoise += "1"
+        else:
+            withNoise += bit
 
     return withNoise

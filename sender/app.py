@@ -51,8 +51,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
 
     # RUIDOOOO
-    # for i in range(len(encoded_final)):
-    #     encoded_final[i] = inject_noise(encoded_final[i].strip(" "), 0.05)
+    for i in range(len(encoded_final)):
+        print("injecting noise to:", encoded_final[i])
+        encoded_final[i] = inject_noise(encoded_final[i].strip(" "), 0.05)
 
     print(f"\nTu mensaje codificado con el algoritmo:\n{" ".join(encoded_final)}")
 

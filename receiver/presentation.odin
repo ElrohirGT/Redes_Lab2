@@ -14,7 +14,7 @@ extract_from_results :: proc (results: [dynamic]VerifyResult) -> [dynamic]Verify
 			results[i].final = results[i].decoded
 			fmt.printf("Trama %d: %08b (%c)\n", i, trama.decoded, trama.decoded)
 		}else{
-			fmt.printf("feo bro")
+			// fmt.printf("feo bro")
 			results[i].final = results[i].decoded >> 32
 			fmt.printf("Trama %d: %08b (%c)\n", i, results[i].final, results[i].final)
 		}
