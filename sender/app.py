@@ -57,10 +57,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     num = int(messageToSend, 2)
 
-    num = np.int64(num)
-
-    data = num.astype('>i8').tobytes()
-
     # numero_int64 = np.int64(num)
 
     # if num >= 2**64:
@@ -69,8 +65,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     # bytes_array = np.array([(numero_int64 >> (8 * i)) & 0xFF for i in range(8)], dtype=np.int8)
 
     # data = bytearray(bytes_array)
+    data = num.to_bytes(8, byteorder="big", signed=False)
 
-    print(list(data))
+    print(data)
 
     s.sendall(data)
 
