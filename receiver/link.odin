@@ -109,17 +109,21 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]u64, err: VerifyAndC
 			return final, extraction_err
 		}
 
+		trama_without_encoding_type := trama >> 2
 		if method == LabEncodingType.HAMMING {
-			trama_without_encoding_type := trama >> 2
 			out, err_position, redundant_mask := algos.hamming_decode(12, 8, trama_without_encoding_type)
-			if err_position != 0 {
+			if err_position == 0 {
+				fmt.fprintf(os.stderr, "No error found decoding!\n")
+				append(&final, out)
+			} else {
 				fmt.fprintf(os.stderr, "Found error on bit: %b (%d)\nFixing...\n", err_position, err_position)
 				mask: u64 = 1 << (err_position -1)
 				fixed_out := out ~ mask
 				fmt.fprintf(os.stderr, "Fixed! %b\n", fixed_out)
-			} else {
-				fmt.fprintf(os.stderr, "No error found decoding!\n")
+
+				append(&final, fixed_out)
 			}
+		} else {
 		}
 	}
 
