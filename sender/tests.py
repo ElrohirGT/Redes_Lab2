@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 from util import send_message
 
 resultados = {"Hamming": [], "CRC": []}
-mensajes = ["Hola", "Probando mensaje largo", "1234567890", "Test rápido", "Mensaje de prueba", "Odin es un lenguaje interesante pero Rust le gana por mucho y mejor no hablemos de Nix\nLa verdad no me gusto odin :v"]
+mensajes = ["Hola", "Yo soy Flavio", "La computacion no es mi pasion :v", "Odin es un lenguaje interesante pero Rust le gana por mucho y mejor no hablemos de Nix",
+             "VIVA PYTHON ABAJO MANEJAR COSAS CON BITS REALES LOS BITS REALES SON UN INVENTO DEL GOBIERNO", 
+             "Universidad del Valle de Guatemala Excelencia que trasciende uvegenios ingeniebros abajo los landivarianos"]
 
 for msg in mensajes:
     tiempo_hamming = send_message(msg, "1")
