@@ -1,6 +1,10 @@
 package main
 
 import "algos"
+import "core:os"
+import "core:fmt"
+import "core:encoding/endian"
+import "core:strconv"
 
 LabEncodingType :: enum {
 	HAMMING,
@@ -25,7 +29,9 @@ extract_type :: proc(msg: u64) -> (enc_type: LabEncodingType, err: TypeExtractio
 }
 
 TransformBytesIntoU64Error :: enum {
-	MessageIsNotDividedByEight
+	MessageIsNotDividedByEight,
+	FailedToConvertToBigEndian,
+	FailedToConvertToLittleEndian
 }
 
 transform_bytes_into_u64 :: proc(msg: []byte, big_ed: bool) -> (transformed_msg: [dynamic]u64, err: TransformBytesIntoU64Error) {
@@ -40,25 +46,26 @@ transform_bytes_into_u64 :: proc(msg: []byte, big_ed: bool) -> (transformed_msg:
 
 		trama: u64= 0
 		if big_ed {
-        trama =(u64(bytes[0]) << 56) |
-               (u64(bytes[1]) << 48) |
-               (u64(bytes[2]) << 40) |
-               (u64(bytes[3]) << 32) |
-               (u64(bytes[4]) << 24) |
-               (u64(bytes[5]) << 16) |
-               (u64(bytes[6]) << 8) |
-               (u64(bytes[7]) << 0);
+			ok := true
+			trama, ok = endian.get_u64(bytes, endian.Byte_Order.Big)
+			if !ok {
+				return transformed_msg, TransformBytesIntoU64Error.FailedToConvertToBigEndian
+			}
 		} else {
-        trama= (u64(bytes[7]) << 56) |
-               (u64(bytes[6]) << 48) |
-               (u64(bytes[5]) << 40) |
-               (u64(bytes[4]) << 32) |
-               (u64(bytes[3]) << 24) |
-               (u64(bytes[2]) << 16) |
-               (u64(bytes[1]) << 8) |
-               (u64(bytes[0]) << 0);
+			ok := true
+			trama, ok = endian.get_u64(bytes, endian.Byte_Order.Big)
+			if !ok {
+				return transformed_msg, TransformBytesIntoU64Error.FailedToConvertToLittleEndian
+			}
 		} 
 
+		fmt.fprintf(os.stderr, "Transformed %v into: %b (digit: %d)\n", bytes, trama, trama)
+
+		buff := [8]byte{}
+		n, ok := strconv.parse_u64_of_base("01001100100000", 2)
+		endian.put_u64(buff[:], endian.Byte_Order.Big, n)
+		fmt.fprintf(os.stderr, "Transformed %b into %v\n", n, buff)
+		 
 		append(&transformed_msg, trama)
 		i+= 7
 	}
@@ -70,12 +77,13 @@ VerifyAndCorrectError :: union #shared_nil {
 	TypeExtractionError,
 	TransformBytesIntoU64Error,
 }
-verify_and_correct :: proc(msg: []u64) -> (final: []u64, err: VerifyAndCorrectError) {
+verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]u64, err: VerifyAndCorrectError) {
 	trans_msg, transformation_err := transform_bytes_into_u64(msg, true)
 	if transformation_err != nil {
 		return final, transformation_err
 	}
 
+	final = make([dynamic]u64, 0, len(msg)/8)
 	for &trama in trans_msg {
 		method, extraction_err := extract_type(trama)
 		if extraction_err != nil {
@@ -85,10 +93,11 @@ verify_and_correct :: proc(msg: []u64) -> (final: []u64, err: VerifyAndCorrectEr
 		if method == LabEncodingType.HAMMING {
 			out, err_position, redundant_mask := algos.hamming_decode(12, 8, trama)
 			fmt.fprintf(os.stderr, "Found error on bit: %b (%d)\nFixing...\n", err_position, err_position)
-			mask: uint = 1 << (err_position -1)
-			fixed_out := encoded_input ~ mask
+			mask: u64 = 1 << (err_position -1)
+			fixed_out := out ~ mask
 			fmt.fprintf(os.stderr, "Fixed! %b\n", fixed_out)
 		}
 	}
+
 	return final, err
 }
