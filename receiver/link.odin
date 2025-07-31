@@ -125,7 +125,7 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: V
 					original = trama_without_encoding_type,
 					method = method,
 					was_ok = true,
-					final = out
+					decoded = out
 				})
 			} else {
 				fmt.fprintf(os.stderr, "Found error on bit: %b (%d)\nFixing...\n", err_position, err_position)
@@ -137,7 +137,7 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: V
 					original = trama_without_encoding_type,
 					method = method,
 					was_ok = false,
-					final = fixed_out
+					decoded = fixed_out
 				})
 			}
 		} else {
@@ -148,7 +148,7 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: V
 					original = trama_without_encoding_type,
 					method = method,
 					was_ok = true,
-					final = trama_without_encoding_type
+					decoded = trama_without_encoding_type
 				})
 			} else {
 				fmt.fprintf(os.stderr, "%b is INVALID!\n", trama_without_encoding_type)
@@ -156,7 +156,7 @@ verify_and_correct :: proc(msg: []byte) -> (final: [dynamic]VerifyResult, err: V
 					original = trama_without_encoding_type,
 					method = method,
 					was_ok = false,
-					final = trama_without_encoding_type
+					decoded = trama_without_encoding_type
 				})
 			}
 		}
